@@ -1,0 +1,9 @@
+<div class="card" (click)="onVote()">
+  <h3 class="card-title">{{ car.name }}</h3>
+  <div class="card-content">
+    <img [src]="car.imageUrl" alt="car-image" class="card-image" />
+    <div class="vote-bar" [style.width]="(car.votes / maxVotes) * 200 + 'px'">
+      {{ car.votes }}
+    </div>
+  </div>
+</div>
