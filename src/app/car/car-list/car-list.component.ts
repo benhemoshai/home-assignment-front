@@ -6,7 +6,7 @@ import { CarService } from '../../services/car.service';
   selector: 'app-car-list',
   standalone: false,
   templateUrl: './car-list.component.html',
-  styleUrl: './car-list.component.css',
+  styleUrls: ['./car-list.component.css'],
 })
 export class CarListComponent implements OnInit {
   carList: Car[] = [];
@@ -15,24 +15,14 @@ export class CarListComponent implements OnInit {
   constructor(private carService: CarService) {}
 
   ngOnInit(): void {
-    // Fetch the list of cars
-    this.carService.getCars().subscribe((cars) => {
+    // Subscribe to real-time updates for cars
+    this.carService.cars$.subscribe((cars) => {
       this.carList = cars;
     });
 
-    // Fetch the maximal votes value
-    this.fetchMaximalVotes();
-  }
-
-  // Fetch the maximal votes from the backend
-  public fetchMaximalVotes(): void {
-    this.carService.getMaximalVotes().subscribe({
-      next: (maxVotes) => {
-        this.maxVotes = maxVotes;
-      },
-      error: (err) => {
-        console.error('Error fetching maximal votes:', err);
-      },
+    // Subscribe to real-time updates for maximal votes
+    this.carService.maxVotes$.subscribe((maxVotes) => {
+      this.maxVotes = maxVotes;
     });
   }
 }

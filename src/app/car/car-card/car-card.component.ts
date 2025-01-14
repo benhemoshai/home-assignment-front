@@ -6,7 +6,7 @@ import { CarService } from '../../services/car.service';
   selector: 'app-car-card',
   standalone: false,
   templateUrl: './car-card.component.html',
-  styleUrl: './car-card.component.css',
+  styleUrls: ['./car-card.component.css'],
 })
 export class CarCardComponent {
   @Input() car!: Car;
@@ -16,14 +16,11 @@ export class CarCardComponent {
 
   onVote(): void {
     this.carService.updateVotes(this.car.id).subscribe({
-      next: (response) => {
-        // Update car votes
-        this.car.votes = response.car.votes;
+      next: () => {
       },
       error: (err) => {
         console.error('Error updating votes:', err);
       },
     });
-
   }
 }
