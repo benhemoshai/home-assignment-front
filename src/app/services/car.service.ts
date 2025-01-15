@@ -1,12 +1,13 @@
 import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { io, Socket } from 'socket.io-client';
-import Car from '../models/Car';
+import {Car} from '../models/Car';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CarService {
+
   private socket: Socket;
   private cars = signal<Car[]>([]);
   private maxVotes = computed(() =>
@@ -14,29 +15,41 @@ export class CarService {
   );
 
   constructor(private http: HttpClient) {
-    this.socket = io('http://localhost:3000'); // Replace with your backend URL
+    this.socket = io('http://localhost:3000');
 
-    // Fetch initial data
+    // Fetching initial data
     this.loadInitialData();
 
-    // Listen for real-time updates
+    // Listening for real-time updates
     this.socket.on('updateCars', (updatedCars: Car[]) => {
       this.cars.set(updatedCars);
     });
   }
 
-  getCars() {
+  getCars() : Car[] {
     return this.cars();
   }
 
-  getMaxVotes() {
+  getMaxVotes() : number {
     return this.maxVotes();
   }
 
-  voteForCar(carId: number) {
-    this.http.put(`http://localhost:3000/cars/${carId}`, {}).subscribe();
+  // Updating this specific car votes
+  voteForCar(carId: number) : void {
+    const updatedCars = this.cars().map(car =>
+      car.id === carId ? { ...car, votes: car.votes + 1 } : car
+    );
+    this.cars.set(updatedCars);
+  
+    // Sending the PUT request to the server
+    this.http.put(`http://localhost:3000/cars/${carId}`, {}).subscribe({
+      error: () => {
+        // Revert the change if the server fails
+        this.loadInitialData();
+      },
+    });
   }
-
+  
   private loadInitialData() {
     this.http.get<Car[]>('http://localhost:3000/cars').subscribe(data => this.cars.set(data));
   }

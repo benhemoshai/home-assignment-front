@@ -1,8 +1,7 @@
-class Car{
-    id:number = 0;
-    name: string = ""; 
-    imageUrl: string = "";
-    votes: number = 0;
+export interface Car{
+    id:number,
+    name: string,
+    imageUrl: string,
+    votes: number
 }
 
-export default Car;

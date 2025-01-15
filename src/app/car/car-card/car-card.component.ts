@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import Car from '../../models/Car';
+import {Car} from '../../models/Car';
 import { CarService } from '../../services/car.service';
 
 @Component({
@@ -14,11 +14,7 @@ export class CarCardComponent {
 
   constructor(private carService: CarService) {}
 
-  get progressWidth(): number {
-    return (this.car.votes / this.maxVotes) * 100 || 0;
-  }
-
-  vote() {
+  vote() : void {
     this.carService.voteForCar(this.car.id);
   }
 }
