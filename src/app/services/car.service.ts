@@ -1,26 +1,43 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { io, Socket } from 'socket.io-client';
 import Car from '../models/Car';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CarService {
+  private socket: Socket;
+  private cars = signal<Car[]>([]);
+  private maxVotes = computed(() =>
+    Math.max(...this.cars().map(car => car.votes), 0)
+  );
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {
+    this.socket = io('http://localhost:3000'); // Replace with your backend URL
 
-  private apiUrl = 'https://home-assignment-back.onrender.com/cars';
+    // Fetch initial data
+    this.loadInitialData();
 
-  getCars() : Observable<Car[]>{
-    return this.http.get<Car[]>(this.apiUrl);
+    // Listen for real-time updates
+    this.socket.on('updateCars', (updatedCars: Car[]) => {
+      this.cars.set(updatedCars);
+    });
   }
 
-  getMaximalVotes(): Observable<number>{
-    return this.http.get<number>(`${this.apiUrl}/maxVotes`);
+  getCars() {
+    return this.cars();
   }
 
-  updateVotes(carId: number): Observable<{ car: Car; maximalVotes: number }>{
-    return this.http.put<{ car: Car; maximalVotes: number }>(`${this.apiUrl}/${carId}`, {});
+  getMaxVotes() {
+    return this.maxVotes();
+  }
+
+  voteForCar(carId: number) {
+    this.http.put(`http://localhost:3000/cars/${carId}`, {}).subscribe();
+  }
+
+  private loadInitialData() {
+    this.http.get<Car[]>('http://localhost:3000/cars').subscribe(data => this.cars.set(data));
   }
 }

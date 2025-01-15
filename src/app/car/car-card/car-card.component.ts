@@ -6,24 +6,19 @@ import { CarService } from '../../services/car.service';
   selector: 'app-car-card',
   standalone: false,
   templateUrl: './car-card.component.html',
-  styleUrl: './car-card.component.css',
+  styleUrls: ['./car-card.component.css'],
 })
 export class CarCardComponent {
   @Input() car!: Car;
-  @Input() maxVotes!: number; // Maximal votes passed from parent
+  @Input() maxVotes!: number;
 
   constructor(private carService: CarService) {}
 
-  onVote(): void {
-    this.carService.updateVotes(this.car.id).subscribe({
-      next: (response) => {
-        // Update car votes
-        this.car.votes = response.car.votes;
-      },
-      error: (err) => {
-        console.error('Error updating votes:', err);
-      },
-    });
+  get progressWidth(): number {
+    return (this.car.votes / this.maxVotes) * 100 || 0;
+  }
 
+  vote() {
+    this.carService.voteForCar(this.car.id);
   }
 }
